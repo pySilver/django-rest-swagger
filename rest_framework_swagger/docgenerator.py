@@ -289,8 +289,7 @@ class DocumentationGenerator(object):
                 f['maximum'] = max_val
 
             # ENUM options
-            if field.type_label == 'multiple choice' \
-                    and isinstance(field.choices, list):
+            if 'choice' in field.type_label and isinstance(field.choices, list):
                 f['enum'] = [k for k, v in field.choices]
 
             # Support for complex types
