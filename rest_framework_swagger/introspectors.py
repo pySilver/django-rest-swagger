@@ -176,6 +176,11 @@ class BaseMethodIntrospector(object):
             if not form_params and body_params is not None:
                 params.append(body_params)
 
+        if self.get_http_method() == "DELETE":
+            for field in form_params:
+                if field['name'] == '_version':
+                    params.append(field)
+
         return params
 
     def get_http_method(self):
@@ -238,6 +243,10 @@ class BaseMethodIntrospector(object):
         fields = serializer().get_fields()
 
         for name, field in fields.items():
+
+            # hardcoded support for Optimistic Lock feature
+            if name == '_version' and self.get_http_method() == 'POST':
+                continue
 
             if getattr(field, 'read_only', False):
                 continue
