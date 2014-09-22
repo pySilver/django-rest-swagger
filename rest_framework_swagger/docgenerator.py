@@ -112,7 +112,7 @@ class DocumentationGenerator(object):
             serializer_name = IntrospectorHelper.get_serializer_name(serializer)
             # Writing
             # no readonly fields
-            w_name = "Write{serializer}".format(serializer=serializer_name)
+            w_name = "{serializer}_WRITE".format(serializer=serializer_name)
 
             w_properties = dict((k, v) for k, v in data['fields'].items()
                                 if k not in data['read_only'])

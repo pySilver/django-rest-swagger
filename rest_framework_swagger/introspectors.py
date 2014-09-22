@@ -50,9 +50,11 @@ class IntrospectorHelper(object):
             return None
 
         if inspect.isclass(serializer):
-            return serializer.__name__
+            name = serializer.__name__
+        else:
+            name = serializer.__class__.__name__
 
-        return serializer.__class__.__name__
+        return "{}.{}".format(serializer.__module__.split('.')[-1], name)
 
 
     @staticmethod
