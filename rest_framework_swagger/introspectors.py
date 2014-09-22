@@ -181,6 +181,7 @@ class BaseMethodIntrospector(object):
         if self.get_http_method() == "DELETE":
             for field in form_params:
                 if field['name'] == '_version':
+                    field['paramType'] = 'query'
                     params.append(field)
 
         return params
