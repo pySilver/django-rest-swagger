@@ -108,9 +108,11 @@ class IntrospectorHelper(object):
                 serializer = serializer.child
 
         if inspect.isclass(serializer):
-            return serializer.__name__
+            name = serializer.__name__
+        else:
+            name = serializer.__class__.__name__
 
-        return serializer.__class__.__name__
+        return "{}.{}".format(serializer.__module__.split('.')[-1], name)
 
     @staticmethod
     def get_summary(callback, docstring=None):
@@ -321,6 +323,13 @@ class BaseMethodIntrospector(object):
             if not form_params and body_params is not None:
                 params.append(body_params)
 
+        # hardcoded support for Optimistic Lock feature
+        if self.get_http_method() == "DELETE":
+            for field in form_params:
+                if field['name'] == '_version':
+                    field['paramType'] = 'query'
+                    params.append(field)
+
         if query_params:
             params += query_params
 
@@ -433,6 +442,10 @@ class BaseMethodIntrospector(object):
         fields = serializer().get_fields()
 
         for name, field in fields.items():
+
+            # hardcoded support for Optimistic Lock feature
+            if name == '_version' and self.get_http_method() == 'POST':
+                continue
 
             if getattr(field, 'read_only', False):
                 continue

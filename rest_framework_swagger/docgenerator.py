@@ -135,6 +135,13 @@ class DocumentationGenerator(object):
 
         models = {}
 
+        def _normalize_writable_name(name):
+            tpl = "{prefix}.Write{postfix}"
+            return tpl.format(
+                prefix=".".join(name.split('.')[0:-1]),
+                postfix=name.split('.')[-1]
+            )
+
         for serializer in serializers:
             data = self._get_serializer_fields(serializer)
 
@@ -146,7 +153,7 @@ class DocumentationGenerator(object):
             serializer_name = IntrospectorHelper.get_serializer_name(serializer)
             # Writing
             # no readonly fields
-            w_name = "Write{serializer}".format(serializer=serializer_name)
+            w_name = _normalize_writable_name(name=serializer_name)
 
             w_properties = OrderedDict((k, v) for k, v in data['fields'].items()
                                        if k not in data['read_only'])
