@@ -508,7 +508,7 @@ class DocumentationGeneratorTest(TestCase, DocumentationGeneratorMixin):
         docgen = self.get_documentation_generator()
         models = docgen.get_models(apis)
 
-        self.assertIn('CommentSerializer', models)
+        self.assertIn('tests.CommentSerializer', models)
 
     def test_get_models_resolves_callable_values(self):
         class SerializedAPI(ListCreateAPIView):
@@ -521,7 +521,7 @@ class DocumentationGeneratorTest(TestCase, DocumentationGeneratorMixin):
         docgen = self.get_documentation_generator()
         models = docgen.get_models(apis)
 
-        created_prop = models['CommentSerializer']['properties']['created']
+        created_prop = models['tests.CommentSerializer']['properties']['created']
         value = created_prop['defaultValue']
         delta = datetime.timedelta(seconds=1)
         self.assertAlmostEqual(value, datetime.datetime.now(), delta=delta)
@@ -538,10 +538,10 @@ class DocumentationGeneratorTest(TestCase, DocumentationGeneratorMixin):
         docgen = self.get_documentation_generator()
         models = docgen.get_models(apis)
 
-        self.assertIn('CommentSerializer', models)
+        self.assertIn('tests.CommentSerializer', models)
         self.assertEqual(
             ["email", "content", "created"],
-            list(models['CommentSerializer']['properties'].keys()))
+            list(models['tests.CommentSerializer']['properties'].keys()))
 
     def test_get_models_ordering_drf3(self):
         if StrictVersion(rest_framework.VERSION) < StrictVersion('3.0'):
@@ -567,10 +567,10 @@ class DocumentationGeneratorTest(TestCase, DocumentationGeneratorMixin):
         docgen = DocumentationGenerator()
         models = docgen.get_models(apis)
 
-        self.assertIn('CommentSerializer', models)
+        self.assertIn('tests.CommentSerializer', models)
         self.assertEqual(
             ["email", "content", "created", "owner"],
-            list(models['CommentSerializer']['properties'].keys()))
+            list(models['tests.CommentSerializer']['properties'].keys()))
 
     def test_get_serializer_set(self):
         class SerializedAPI(ListCreateAPIView):
@@ -616,7 +616,7 @@ class DocumentationGeneratorTest(TestCase, DocumentationGeneratorMixin):
         fields = docgen._get_serializer_fields(OtherSerializer)
 
         self.assertEqual(1, len(fields['fields']))
-        self.assertEqual("SomeSerializer", fields['fields']['thing2']['type'])
+        self.assertEqual("tests.SomeSerializer", fields['fields']['thing2']['type'])
 
     def test_get_serializer_fields_api_with_nested_many(self):
         class SomeSerializer(serializers.Serializer):
@@ -850,10 +850,10 @@ class IntrospectorHelperTest(TestCase):
 
     def test_get_serializer_name1(self):
         self.assertEqual(
-            "CommentSerializer",
+            "tests.CommentSerializer",
             IntrospectorHelper.get_serializer_name(CommentSerializer))
         self.assertEqual(
-            "CommentSerializer",
+            "tests.CommentSerializer",
             IntrospectorHelper.get_serializer_name(CommentSerializer()))
 
     def test_get_serializer_name2(self):
@@ -863,10 +863,10 @@ class IntrospectorHelperTest(TestCase):
         serializer = DaSerializer()
         comments = serializer.get_fields()["comments"]
         self.assertEqual(
-            "DaSerializer",
+            "tests.DaSerializer",
             IntrospectorHelper.get_serializer_name(serializer))
         self.assertEqual(
-            "CommentSerializer",
+            "tests.CommentSerializer",
             IntrospectorHelper.get_serializer_name(comments))
 
 
@@ -1311,7 +1311,7 @@ class BaseMethodIntrospectorTest(TestCase, DocumentationGeneratorMixin):
         introspector = APIViewMethodIntrospector(class_introspector, 'POST')
         params = introspector.build_body_parameters()
 
-        self.assertEqual('CommentSerializer', params['name'])
+        self.assertEqual('tests.CommentSerializer', params['name'])
 
     def test_build_form_parameters_hidden_field(self):
         if rest_framework.VERSION < '3.0.0':
@@ -1335,13 +1335,13 @@ class BaseMethodIntrospectorTest(TestCase, DocumentationGeneratorMixin):
         generator = self.get_documentation_generator()
         apis = urlparser.get_apis(url_patterns)
         models = generator.get_models(apis)
-        self.assertIn("HiddenSerializer", models)
-        properties = models["HiddenSerializer"]['properties']
+        self.assertIn("tests.HiddenSerializer", models)
+        properties = models["tests.HiddenSerializer"]['properties']
 
         self.assertEqual("string", properties["content"]["type"])
         self.assertNotIn("hidden", properties)
 
-        write_properties = models["WriteHiddenSerializer"]['properties']
+        write_properties = models["tests.WriteHiddenSerializer"]['properties']
         self.assertEqual("string", write_properties["content"]["type"])
         self.assertNotIn("hidden", write_properties)
 
@@ -1364,8 +1364,8 @@ class BaseMethodIntrospectorTest(TestCase, DocumentationGeneratorMixin):
         generator = self.get_documentation_generator()
         apis = urlparser.get_apis(url_patterns)
         models = generator.get_models(apis)
-        self.assertIn("KitchenSinkSerializer", models)
-        properties = models["KitchenSinkSerializer"]['properties']
+        self.assertIn("tests.KitchenSinkSerializer", models)
+        properties = models["tests.KitchenSinkSerializer"]['properties']
         self.assertEqual("string", properties["email"]["type"])
         self.assertNotIn("format", properties["email"])
         self.assertEqual("string", properties["content"]["type"])
@@ -2007,14 +2007,14 @@ class YAMLDocstringParserTests(TestCase, DocumentationGeneratorMixin):
         apis = urlparser.get_apis(url_patterns)
         models = generator.get_models(apis)
         self.assertIn('SerializedAPIPostResponse', models)
-        self.assertIn('WriteCommentSerializer', models)
-        self.assertIn('CommentSerializer', models)
-        self.assertNotIn('QuerySerializer', models)
+        self.assertIn('tests.WriteCommentSerializer', models)
+        self.assertIn('tests.CommentSerializer', models)
+        self.assertNotIn('tests.QuerySerializer', models)
         self.assertNotIn('WriteQuerySerializer', models)
         self.assertEqual(serializer, CommentSerializer)
         body_parameters = introspector.build_body_parameters()
         form_parameters = introspector.build_form_parameters()
-        self.assertEqual(body_parameters['name'], "QuerySerializer")
+        self.assertEqual(body_parameters['name'], "tests.QuerySerializer")
         self.assertEqual(len(form_parameters), 1)
         self.assertEqual(form_parameters[0]['name'], "query")
 
@@ -2038,7 +2038,7 @@ class YAMLDocstringParserTests(TestCase, DocumentationGeneratorMixin):
         self.assertEqual(serializer, CommentSerializer)
         body_parameters = introspector.build_body_parameters()
         form_parameters = introspector.build_form_parameters()
-        self.assertEqual(body_parameters['name'], "QuerySerializer")
+        self.assertEqual(body_parameters['name'], "tests.QuerySerializer")
         self.assertEqual(len(form_parameters), 1)
         self.assertEqual(form_parameters[0]['name'], "query")
 
@@ -2062,7 +2062,7 @@ class YAMLDocstringParserTests(TestCase, DocumentationGeneratorMixin):
         self.assertEqual(serializer, CommentSerializer)
         body_parameters = introspector.build_body_parameters()
         form_parameters = introspector.build_form_parameters()
-        self.assertEqual(body_parameters['name'], "QuerySerializer")
+        self.assertEqual(body_parameters['name'], "tests.QuerySerializer")
         self.assertEqual(len(form_parameters), 1)
         self.assertEqual(form_parameters[0]['name'], "query")
 
@@ -2085,7 +2085,7 @@ class YAMLDocstringParserTests(TestCase, DocumentationGeneratorMixin):
         self.assertEqual(serializer, CommentSerializer)
         body_parameters = introspector.build_body_parameters()
         form_parameters = introspector.build_form_parameters()
-        self.assertEqual(body_parameters['name'], "QuerySerializer")
+        self.assertEqual(body_parameters['name'], "tests.QuerySerializer")
         self.assertEqual(len(form_parameters), 1)
         self.assertEqual(form_parameters[0]['name'], "query")
 
@@ -2108,7 +2108,7 @@ class YAMLDocstringParserTests(TestCase, DocumentationGeneratorMixin):
         self.assertEqual(serializer, CommentSerializer)
         body_parameters = introspector.build_body_parameters()
         form_parameters = introspector.build_form_parameters()
-        self.assertEqual(body_parameters['name'], "QuerySerializer")
+        self.assertEqual(body_parameters['name'], "tests.QuerySerializer")
         self.assertEqual(len(form_parameters), 1)
         self.assertEqual(form_parameters[0]['name'], "query")
 
@@ -2132,7 +2132,7 @@ class YAMLDocstringParserTests(TestCase, DocumentationGeneratorMixin):
         self.assertEqual(serializer, CommentSerializer)
         body_parameters = introspector.build_body_parameters()
         form_parameters = introspector.build_form_parameters()
-        self.assertEqual(body_parameters['name'], "QuerySerializer")
+        self.assertEqual(body_parameters['name'], "tests.QuerySerializer")
         self.assertEqual(len(form_parameters), 1)
         self.assertEqual(form_parameters[0]['name'], "query")
 
@@ -2156,7 +2156,7 @@ class YAMLDocstringParserTests(TestCase, DocumentationGeneratorMixin):
         self.assertEqual(serializer, CommentSerializer)
         body_parameters = introspector.build_body_parameters()
         form_parameters = introspector.build_form_parameters()
-        self.assertEqual(body_parameters['name'], "QuerySerializer")
+        self.assertEqual(body_parameters['name'], "tests.QuerySerializer")
         self.assertEqual(len(form_parameters), 1)
         self.assertEqual(form_parameters[0]['name'], "query")
 
@@ -2180,7 +2180,7 @@ class YAMLDocstringParserTests(TestCase, DocumentationGeneratorMixin):
         self.assertEqual(serializer, CommentSerializer)
         body_parameters = introspector.build_body_parameters()
         form_parameters = introspector.build_form_parameters()
-        self.assertEqual(body_parameters['name'], "QuerySerializer")
+        self.assertEqual(body_parameters['name'], "tests.QuerySerializer")
         self.assertEqual(len(form_parameters), 1)
         self.assertEqual(form_parameters[0]['name'], "query")
 
@@ -2203,7 +2203,7 @@ class YAMLDocstringParserTests(TestCase, DocumentationGeneratorMixin):
         self.assertEqual(serializer, CommentSerializer)
         body_parameters = introspector.build_body_parameters()
         form_parameters = introspector.build_form_parameters()
-        self.assertEqual(body_parameters['name'], "QuerySerializer")
+        self.assertEqual(body_parameters['name'], "tests.QuerySerializer")
         self.assertEqual(len(form_parameters), 1)
         self.assertEqual(form_parameters[0]['name'], "query")
 
@@ -2226,7 +2226,7 @@ class YAMLDocstringParserTests(TestCase, DocumentationGeneratorMixin):
         self.assertEqual(serializer, CommentSerializer)
         body_parameters = introspector.build_body_parameters()
         form_parameters = introspector.build_form_parameters()
-        self.assertEqual(body_parameters['name'], "QuerySerializer")
+        self.assertEqual(body_parameters['name'], "tests.QuerySerializer")
         self.assertEqual(len(form_parameters), 1)
         self.assertEqual(form_parameters[0]['name'], "query")
 
@@ -2255,7 +2255,7 @@ class YAMLDocstringParserTests(TestCase, DocumentationGeneratorMixin):
         self.assertEqual(serializer, CommentSerializer)
         body_parameters = introspector.build_body_parameters()
         form_parameters = introspector.build_form_parameters()
-        self.assertEqual(body_parameters['name'], "QuerySerializer")
+        self.assertEqual(body_parameters['name'], "tests.QuerySerializer")
         self.assertEqual(len(form_parameters), 1)
 
     def test_custom_response_class(self):
@@ -2432,7 +2432,7 @@ class YAMLDocstringParserTests(TestCase, DocumentationGeneratorMixin):
         self.assertEqual(len(parameters), 1)
         self.assertNotIn("pytype", parameters[0])
         self.assertEqual(parameters[0]['name'], 'stuff')
-        self.assertEqual(parameters[0]['type'], 'QuerySerializer')
+        self.assertEqual(parameters[0]['type'], 'tests.QuerySerializer')
 
 
 class ViewMockerNeedingAPI(ListCreateAPIView):
@@ -2790,7 +2790,7 @@ if platform.python_version_tuple()[:2] != ('3', '2'):
             validator = self.get_validator("apiDeclaration")
             response = self.client.get("/swagger/api-docs/a-view")
             json = parse_json(response)
-            self.assertIn("KitchenSinkSerializer", json['models'])
+            self.assertIn("tests.KitchenSinkSerializer", json['models'])
             validator.validate(json)
 
         def test_yaml_parameters(self):
